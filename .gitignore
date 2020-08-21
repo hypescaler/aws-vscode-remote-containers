@@ -1,0 +1,30 @@
+# Distribution / packaging
+build/
+dist/
+
+# Unit test / coverage reports
+.cache
+.hypothesis/
+.pytest_cache/
+
+# RPDK logs
+rpdk.log
+
+# Node.js
+node_modules/
+coverage/
+
+# CDK
+cdk.out/
+
+# CFN
+hypescale-devtools-devinstance.zip
+
+# personal VS Code config
+.vscode/settings.json
+
+# env file for local testing
+env.json
+
+# test logs
+log.txt

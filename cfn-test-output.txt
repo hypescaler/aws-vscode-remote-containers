@@ -1,0 +1,28 @@
+# cfn test                              
+=============================================================================== test session starts ================================================================================
+platform linux -- Python 3.8.2, pytest-6.0.1, py-1.9.0, pluggy-0.13.1 -- /usr/bin/python3
+cachedir: .pytest_cache
+hypothesis profile 'default' -> database=DirectoryBasedExampleDatabase('/mnt/ebs/fs1/workspace/aws-vscode-remote-containers/.hypothesis/examples')
+Test order randomisation NOT enabled. Enable with --random-order or --random-order-bucket=<bucket_type>
+rootdir: /mnt/ebs/fs1/workspace/aws-vscode-remote-containers, configfile: ../../../../../tmp/pytest_msryj5zf.ini
+plugins: hypothesis-5.24.1, localserver-0.5.0, random-order-1.0.4
+collected 16 items                                                                                                                                                                 
+
+handler_create.py::contract_create_delete PASSED                                                                                                                             [  6%]
+handler_create.py::contract_invalid_create PASSED                                                                                                                            [ 12%]
+handler_create.py::contract_create_duplicate PASSED                                                                                                                          [ 18%]
+handler_create.py::contract_create_read_success PASSED                                                                                                                       [ 25%]
+handler_create.py::contract_create_list_success PASSED                                                                                                                       [ 31%]
+handler_delete.py::contract_delete_read PASSED                                                                                                                               [ 37%]
+handler_delete.py::contract_delete_list PASSED                                                                                                                               [ 43%]
+handler_delete.py::contract_delete_update PASSED                                                                                                                             [ 50%]
+handler_delete.py::contract_delete_delete PASSED                                                                                                                             [ 56%]
+handler_delete.py::contract_delete_create SKIPPED                                                                                                                            [ 62%]
+handler_misc.py::contract_check_asserts_work PASSED                                                                                                                          [ 68%]
+handler_read.py::contract_read_without_create PASSED                                                                                                                         [ 75%]
+handler_update.py::contract_update_read_success PASSED                                                                                                                       [ 81%]
+handler_update.py::contract_update_list_success PASSED                                                                                                                       [ 87%]
+handler_update_invalid.py::contract_update_create_only_property SKIPPED                                                                                                      [ 93%]
+handler_update_invalid.py::contract_update_non_existent_resource PASSED                                                                                                      [100%]
+
+==================================================================== 14 passed, 2 skipped in 1768.33s (0:29:28) ====================================================================
