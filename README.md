@@ -146,7 +146,27 @@ The resource passes the test, as shown in `cfn-test-output.txt` ... but you need
 2. Start the funtion locally via `sam local start-lambda -n env.json` 
 3. Run the tests with `cfn test`
 
+**Note: Make sure to delete the superfluous EBS volumes afterwards, as they are not deleted with the resource.**
 
+##  Using the CDK stack directly
+
+You can apply the stack directly for testing purposes (or because you do not want to consume it as a Resource Type).
+
+```
+npm install
+npm run build
+
+# After that, you can use cdk cli commands like:
+
+# Create the CloudFormation template
+cdk --app dist/devinstance-app.js synth DevinstanceStack
+
+# Show diff to currently deployed stack
+cdk --app dist/devinstance-app.js diff DevinstanceStack
+
+# Deploy the stack
+cdk --app dist/devinstance-app.js deploy DevinstanceStack
+```
 
 ## Further improvements
 
