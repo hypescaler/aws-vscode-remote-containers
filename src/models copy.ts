@@ -13,8 +13,8 @@ export class ResourceModel extends BaseModel {
 
     @Expose({ name: 'UID' })
     @Transform(
-        ({ value, key, obj, type }) =>
-            transformValue(String, 'UID', value, obj, []),
+        (value: any) =>
+            transformValue(String, 'UID', value, {}, []),
         {
             toClassOnly: true,
         }
@@ -22,8 +22,8 @@ export class ResourceModel extends BaseModel {
     UID?: Optional<string>;
     @Expose({ name: 'InstanceType' })
     @Transform(
-        ({ value, key, obj, type }) =>
-            transformValue(String, 'InstanceType', value, obj, []),
+        (value: any) =>
+            transformValue(String, 'InstanceType', value, {}, []),
         {
             toClassOnly: true,
         }
@@ -31,8 +31,8 @@ export class ResourceModel extends BaseModel {
     InstanceType?: Optional<string>;
     @Expose({ name: 'DiskSize' })
     @Transform(
-        ({ value, key, obj, type }) =>
-            transformValue(Integer, 'DiskSize', value, obj, []),
+        (value: any) =>
+            transformValue(Integer, 'DiskSize', value, {}, []),
         {
             toClassOnly: true,
         }
@@ -40,8 +40,8 @@ export class ResourceModel extends BaseModel {
     DiskSize?: Optional<integer>;
     @Expose({ name: 'Keypair' })
     @Transform(
-        ({ value, key, obj, type }) =>
-            transformValue(String, 'Keypair', value, obj, []),
+        (value: any) =>
+            transformValue(String, 'Keypair', value, {}, []),
         {
             toClassOnly: true,
         }
@@ -49,8 +49,8 @@ export class ResourceModel extends BaseModel {
     Keypair?: Optional<string>;
     @Expose({ name: 'SSH' })
     @Transform(
-        ({ value, key, obj, type }) =>
-            transformValue(String, 'SSH', value, obj, []),
+        (value: any) =>
+            transformValue(String, 'SSH', value, {}, []),
         {
             toClassOnly: true,
         }

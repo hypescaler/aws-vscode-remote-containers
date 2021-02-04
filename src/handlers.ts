@@ -16,6 +16,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { getTemplate } from './devinstance'
 import { env } from 'process'
 
+interface CallbackContext extends Record<string, any> {}
+
 function getCfClient(session: Optional<SessionProxy>) {
     if (env.HY_OVERRIDE_CREDENTIALS === "yes") {
         console.log('use override credentials')
@@ -39,7 +41,7 @@ function getCfClient(session: Optional<SessionProxy>) {
 function createErrorProgressEvent(err: any, code?: HandlerErrorCode): ProgressEvent {
     code = code || HandlerErrorCode.GeneralServiceException
     const progress = ProgressEvent.failed(code, `${err.code}: ${err.message}`)
-    console.log(progress.toObject())
+    console.log(progress)
     return progress
 }
 
@@ -47,9 +49,9 @@ function cfFailed(stackStatus: string): boolean {
     return ["UPDATE_ROLLBACK_COMPLETE", "ROLLBACK_IN_PROGRESS", "ROLLBACK_COMPLETE", "CREATE_FAILED", "ROLLBACK_FAILED", "DELETE_FAILED", "UPDATE_ROLLBACK_FAILED", "IMPORT_ROLLBACK_FAILED"].includes(stackStatus)
 }
 
-function resetContext(ctx: Map<string, any>) {
-    ctx.delete("state")
-    ctx.delete("uid")
+function resetContext(ctx: CallbackContext) {
+    delete ctx["state"]
+    delete ctx["uid"]
 }
 
 async function getResourceModelFromStack(session: Optional<SessionProxy>, stackName: string): Promise<ResourceModel> {
@@ -89,7 +91,7 @@ function getStackParametersFromModel(model: ResourceModel): AWS.CloudFormation.P
     ]
 }
 
-function debugLog(action: Action, request: ResourceHandlerRequest<ResourceModel>, callbackContext: Map<string, any>) {
+function debugLog(action: Action, request: ResourceHandlerRequest<ResourceModel>, callbackContext: CallbackContext) {
     console.log(action + " -----------------")
     console.log("Request: " + JSON.stringify(request))
     console.log("Context: " + JSON.stringify(callbackContext))
@@ -109,9 +111,9 @@ class Resource extends BaseResource<ResourceModel> {
     public async create(
         session: Optional<SessionProxy>,
         request: ResourceHandlerRequest<ResourceModel>,
-        callbackContext: Map<string, any>,
+        callbackContext: CallbackContext,
     ): Promise<ProgressEvent> {
-        const model: ResourceModel = request.desiredResourceState;
+        const model = new ResourceModel(request.desiredResourceState);
         const progress: ProgressEvent<ResourceModel> = ProgressEvent.builder()
             .status(OperationStatus.InProgress)
             .resourceModel(model)
@@ -120,7 +122,7 @@ class Resource extends BaseResource<ResourceModel> {
 
         debugLog(Action.Create, request, callbackContext)
 
-        const state = callbackContext.get("state")
+        const state = callbackContext.state
 
         if (state === "creating") {
             const uuid: string = model.UID
@@ -149,7 +151,7 @@ class Resource extends BaseResource<ResourceModel> {
                 const parameters = getStackParametersFromModel(model)
                 const template = JSON.stringify(getTemplate())
                 await getCfClient(session).createStack({ StackName: uuid, Parameters: parameters, Capabilities: ["CAPABILITY_IAM"], TemplateBody: template }).promise()
-                callbackContext.set("state", "creating")
+                callbackContext.state = "creating"
                 model.UID = uuid
             } catch (err) {
                 resetContext(callbackContext)
@@ -157,7 +159,7 @@ class Resource extends BaseResource<ResourceModel> {
             }
 
         }
-        console.log(progress.toObject())
+        console.log(progress)
         return progress
 
 
@@ -175,7 +177,7 @@ class Resource extends BaseResource<ResourceModel> {
     public async update(
         session: Optional<SessionProxy>,
         request: ResourceHandlerRequest<ResourceModel>,
-        callbackContext: Map<string, any>,
+        callbackContext: CallbackContext,
     ): Promise<ProgressEvent> {
         const model: ResourceModel = request.desiredResourceState;
         const progress: ProgressEvent<ResourceModel> = ProgressEvent.builder()
@@ -220,7 +222,7 @@ class Resource extends BaseResource<ResourceModel> {
                 }
             }
         }
-        console.log(progress.toObject())
+        console.log(progress)
         return progress
 
 
@@ -239,7 +241,7 @@ class Resource extends BaseResource<ResourceModel> {
     public async delete(
         session: Optional<SessionProxy>,
         request: ResourceHandlerRequest<ResourceModel>,
-        callbackContext: Map<string, any>,
+        callbackContext: CallbackContext,
     ): Promise<ProgressEvent> {
         const model: ResourceModel = request.desiredResourceState;
         const progress: ProgressEvent<ResourceModel> = ProgressEvent.builder()
@@ -298,7 +300,7 @@ class Resource extends BaseResource<ResourceModel> {
             progress.resourceModel = minimalModel
         }
 
-        console.log(progress.toObject())
+        console.log(progress)
         return progress
 
     }
@@ -315,7 +317,7 @@ class Resource extends BaseResource<ResourceModel> {
     public async read(
         session: Optional<SessionProxy>,
         request: ResourceHandlerRequest<ResourceModel>,
-        callbackContext: Map<string, any>,
+        callbackContext: CallbackContext,
     ): Promise<ProgressEvent> {
 
         debugLog(Action.Read, request, callbackContext)
@@ -328,7 +330,7 @@ class Resource extends BaseResource<ResourceModel> {
                 .callbackContext(callbackContext)
                 .build() as ProgressEvent<ResourceModel>
 
-            console.log(progress.toObject())
+            console.log(progress)
             return progress
 
         } catch (err) {
@@ -354,7 +356,7 @@ class Resource extends BaseResource<ResourceModel> {
     public async list(
         session: Optional<SessionProxy>,
         request: ResourceHandlerRequest<ResourceModel>,
-        callbackContext: Map<string, any>,
+        callbackContext: CallbackContext,
     ): Promise<ProgressEvent> {
 
         debugLog(Action.List, request, callbackContext)
@@ -377,7 +379,7 @@ class Resource extends BaseResource<ResourceModel> {
             .callbackContext(callbackContext)
             .build() as ProgressEvent<ResourceModel>
 
-        console.log(progress.toObject())
+        console.log(progress)
         return progress;
     }
 }

@@ -21,12 +21,12 @@
         "@aws-cdk/core": "1.58.0",
         "@types/uuid": "^8.3.0",
         "aws-cdk": "1.58.0",
-        "cfn-rpdk": "https://github.com/eduardomourar/cloudformation-cli-typescript-plugin/releases/download/v0.2.1/cfn-rpdk-0.2.1.tgz",
-        "uuid": "^8.3.0",
-        "source-map-support": "^0.5.16"
+        "cfn-rpdk": "https://github.com/eduardomourar/cloudformation-cli-typescript-plugin/releases/download/v0.5.0/cfn-rpdk-0.5.0.tgz",
+        "source-map-support": "^0.5.16",
+        "uuid": "^8.3.2"
     },
     "devDependencies": {
-        "@types/node": "^12.0.0",
+        "@types/node": "^12.19.16",
         "typescript": "^3.8.3"
     },
     "optionalDependencies": {

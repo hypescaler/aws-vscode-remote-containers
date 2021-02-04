@@ -13,7 +13,7 @@ To declare this entity in your AWS CloudFormation template, use the following sy
     "Type" : "Hypescale::Devtools::Devinstance",
     "Properties" : {
         "<a href="#instancetype" title="InstanceType">InstanceType</a>" : <i>String</i>,
-        "<a href="#disksize" title="DiskSize">DiskSize</a>" : <i>Double</i>,
+        "<a href="#disksize" title="DiskSize">DiskSize</a>" : <i>Integer</i>,
         "<a href="#keypair" title="Keypair">Keypair</a>" : <i>String</i>,
     }
 }
@@ -25,7 +25,7 @@ To declare this entity in your AWS CloudFormation template, use the following sy
 Type: Hypescale::Devtools::Devinstance
 Properties:
     <a href="#instancetype" title="InstanceType">InstanceType</a>: <i>String</i>
-    <a href="#disksize" title="DiskSize">DiskSize</a>: <i>Double</i>
+    <a href="#disksize" title="DiskSize">DiskSize</a>: <i>Integer</i>
     <a href="#keypair" title="Keypair">Keypair</a>: <i>String</i>
 </pre>
 
@@ -49,7 +49,7 @@ The persistent disk size in Gibibytes
 
 _Required_: No
 
-_Type_: Double
+_Type_: Integer
 
 _Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
 
