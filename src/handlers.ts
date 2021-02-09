@@ -16,7 +16,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { getTemplate } from './devinstance'
 import { env } from 'process'
 
-interface CallbackContext extends Record<string, any> {}
+interface CallbackContext extends Record<string, any> { }
 
 function getCfClient(session: Optional<SessionProxy>) {
     if (env.HY_OVERRIDE_CREDENTIALS === "yes") {
@@ -49,9 +49,15 @@ function cfFailed(stackStatus: string): boolean {
     return ["UPDATE_ROLLBACK_COMPLETE", "ROLLBACK_IN_PROGRESS", "ROLLBACK_COMPLETE", "CREATE_FAILED", "ROLLBACK_FAILED", "DELETE_FAILED", "UPDATE_ROLLBACK_FAILED", "IMPORT_ROLLBACK_FAILED"].includes(stackStatus)
 }
 
-function resetContext(ctx: CallbackContext) {
-    delete ctx["state"]
-    delete ctx["uid"]
+function emptyContext(progress: ProgressEvent<ResourceModel>) {
+    const ctx = {}
+    progress.callbackContext = ctx
+    return ctx
+}
+
+function setContext(progress: ProgressEvent<ResourceModel>, ctx: CallbackContext) {
+    progress.callbackContext = ctx
+    return ctx
 }
 
 async function getResourceModelFromStack(session: Optional<SessionProxy>, stackName: string): Promise<ResourceModel> {
@@ -73,13 +79,13 @@ async function getResourceModelFromStack(session: Optional<SessionProxy>, stackN
     }, {})
 
     return new ResourceModel(
-        new Map(Object.entries({
+        {
             UID: stackName,
             InstanceType: props.instanceType,
             DiskSize: parseInt(props.diskSize) as number,
             Keypair: props.keypair,
             SSH: outputs.ssh
-        }))
+        }
     )
 }
 
@@ -135,9 +141,9 @@ class Resource extends BaseResource<ResourceModel> {
                 }, {})
                 model.SSH = outputs.ssh
                 progress.status = OperationStatus.Success
-                resetContext(callbackContext)
+                emptyContext(progress)
             } else if (cfFailed(stack.StackStatus)) {
-                resetContext(callbackContext)
+                emptyContext(progress)
                 return createErrorProgressEvent(new Error(stack.StackStatus + ": " + stack.StackStatusReason), HandlerErrorCode.InvalidRequest)
             }
 
@@ -151,10 +157,12 @@ class Resource extends BaseResource<ResourceModel> {
                 const parameters = getStackParametersFromModel(model)
                 const template = JSON.stringify(getTemplate())
                 await getCfClient(session).createStack({ StackName: uuid, Parameters: parameters, Capabilities: ["CAPABILITY_IAM"], TemplateBody: template }).promise()
-                callbackContext.state = "creating"
+                setContext(progress, {
+                    state: "creating"
+                })
                 model.UID = uuid
             } catch (err) {
-                resetContext(callbackContext)
+                emptyContext(progress)
                 return createErrorProgressEvent(err, HandlerErrorCode.InvalidRequest)
             }
 
@@ -188,16 +196,16 @@ class Resource extends BaseResource<ResourceModel> {
 
         debugLog(Action.Update, request, callbackContext)
 
-        const state = callbackContext.get("state")
+        const state = callbackContext.state
 
         if (state === "updating") {
             const response = await getCfClient(session).describeStacks({ StackName: model.UID }).promise()
             const stack = response.Stacks[0]
             if (stack.StackStatus === "UPDATE_COMPLETE") {
                 progress.status = OperationStatus.Success
-                resetContext(callbackContext)
+                emptyContext(progress)
             } else if (cfFailed(stack.StackStatus)) {
-                resetContext(callbackContext)
+                emptyContext(progress)
                 return createErrorProgressEvent(new Error(stack.StackStatus + ": " + stack.StackStatusReason))
             }
 
@@ -208,13 +216,15 @@ class Resource extends BaseResource<ResourceModel> {
                     const err = new Error("Empty UID does not exist") as any
                     err.code = "ValidationError"
                     throw err
-                } 
+                }
                 const parameters = getStackParametersFromModel(model)
                 const template = JSON.stringify(getTemplate())
                 await getCfClient(session).updateStack({ StackName: model.UID, Parameters: parameters, Capabilities: ["CAPABILITY_IAM"], TemplateBody: template }).promise()
-                callbackContext.set("state", "updating")
+                setContext(progress, {
+                    state: "updating"
+                })
             } catch (err) {
-                resetContext(callbackContext)
+                emptyContext(progress)
                 if (err.code === "ValidationError" && err.message.includes("does not exist")) {
                     return createErrorProgressEvent(err, HandlerErrorCode.NotFound)
                 } else {
@@ -246,29 +256,28 @@ class Resource extends BaseResource<ResourceModel> {
         const model: ResourceModel = request.desiredResourceState;
         const progress: ProgressEvent<ResourceModel> = ProgressEvent.builder()
             .status(OperationStatus.InProgress)
-            //            .resourceModel(model)
             .callbackContext(callbackContext)
             .build() as ProgressEvent<ResourceModel>
 
         debugLog(Action.Delete, request, callbackContext)
 
-        const state = callbackContext.get("state")
+        const state = callbackContext.state
         var uuid: string
 
         if (state === "deleting") {
-            uuid = callbackContext.get("uid")
+            uuid = callbackContext.uid
             try {
                 const response = await getCfClient(session).describeStacks({ StackName: uuid }).promise()
                 const stack = response.Stacks[0]
                 if (stack.StackStatus === "DELETE_COMPLETE") {
                     progress.status = OperationStatus.Success
-                    resetContext(callbackContext)
+                    emptyContext(progress)
                 } else if (cfFailed(stack.StackStatus)) {
-                    resetContext(callbackContext)
+                    emptyContext(progress)
                     return createErrorProgressEvent(new Error(stack.StackStatus + ": " + stack.StackStatusReason))
                 }
             } catch (err) {
-                resetContext(callbackContext)
+                emptyContext(progress)
                 if (err.code === "ValidationError" && err.message.includes("does not exist")) {
                     progress.status = OperationStatus.Success
                 } else {
@@ -282,14 +291,16 @@ class Resource extends BaseResource<ResourceModel> {
                 const response = await getCfClient(session).describeStacks({ StackName: uuid }).promise()
                 const stack = response.Stacks[0]
                 if (stack.StackStatus === "DELETE_COMPLETE") {
-                    resetContext(callbackContext)
+                    emptyContext(progress)
                     return createErrorProgressEvent(new Error("Already deleted."), HandlerErrorCode.NotFound)
                 }
                 await getCfClient(session).deleteStack({ StackName: uuid }).promise()
-                callbackContext.set("state", "deleting")
-                callbackContext.set("uid", uuid)
+                setContext(progress, {
+                    state: "deleting",
+                    uid: uuid
+                })
             } catch (err) {
-                resetContext(callbackContext)
+                emptyContext(progress)
                 return createErrorProgressEvent(err, HandlerErrorCode.NotFound)
             }
 
@@ -321,7 +332,18 @@ class Resource extends BaseResource<ResourceModel> {
     ): Promise<ProgressEvent> {
 
         debugLog(Action.Read, request, callbackContext)
-
+        /*
+                const test = new ResourceModel(
+                    {
+                        UID: "stackName",
+                        InstanceType: "props",
+                        DiskSize: 100,
+                        Keypair: "dev",
+                        SSH: "url"
+                    }
+                )
+                console.log(test)
+        */
         try {
             const model: ResourceModel = await getResourceModelFromStack(session, request.desiredResourceState.UID)
             const progress: ProgressEvent<ResourceModel> = ProgressEvent.builder()
