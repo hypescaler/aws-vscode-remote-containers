@@ -144,7 +144,7 @@ It should be possible to derive a more generalized handler framework that could 
 
 ## Passing `cfn test`
 
-The resource passes the test (with cfn 0.2.3), but you need to pass a set of AWS credentials with full permissions to make it work. The tester is injecting credentials that aren't authorized to make IAM calls, which is required for the CloudFormation template to be deployed.
+The run the tests, you need to pass a set of AWS credentials with full permissions. The tester is injecting credentials that aren't authorized to make IAM calls, which is required for the CloudFormation template to be deployed.
 
 1. Make a copy of `env.template.json` as `env.json` and add an access key ID and secret access key (with full permissions) to it. 
 2. Start the funtion locally via `sam local start-lambda -n env.json` 
@@ -171,40 +171,3 @@ cdk --app dist/devinstance-app.js diff DevinstanceStack
 # Deploy the stack
 cdk --app dist/devinstance-app.js deploy DevinstanceStack
 ```
-
-
-# cfn test
-Use specific handler permissions instead of using wildcards: *
-Use specific handler permissions instead of using wildcards: *
-Use specific handler permissions instead of using wildcards: *
-Use specific handler permissions instead of using wildcards: *
-Use specific handler permissions instead of using wildcards: *
-Resource schema is valid.
-====================================================================================================================================================================================================== test session starts ======================================================================================================================================================================================================
-platform linux -- Python 3.8.6, pytest-6.1.1, py-1.9.0, pluggy-0.13.1 -- /home/linuxbrew/.linuxbrew/opt/python@3.8/bin/python3.8
-cachedir: .pytest_cache
-hypothesis profile 'default' -> database=DirectoryBasedExampleDatabase('/mnt/ebs/fs1/workspace/aws-vscode-remote-containers/.hypothesis/examples')
-Test order randomisation NOT enabled. Enable with --random-order or --random-order-bucket=<bucket_type>
-rootdir: /mnt/ebs/fs1/workspace/aws-vscode-remote-containers, configfile: ../../../../../tmp/pytest_9ato2rh2.ini
-plugins: hypothesis-5.37.1, localserver-0.5.0, random-order-1.0.4
-collected 16 items                                                                                                                                                                                                                                                                                                                                                                                                              
-
-handler_create.py::contract_create_delete PASSED                                                                                                                                                                                                                                                                                                                                                                          [  6%]
-handler_create.py::contract_invalid_create PASSED                                                                                                                                                                                                                                                                                                                                                                         [ 12%]
-handler_create.py::contract_create_duplicate SKIPPED                                                                                                                                                                                                                                                                                                                                                                      [ 18%]
-handler_create.py::contract_create_read_success PASSED                                                                                                                                                                                                                                                                                                                                                                    [ 25%]
-handler_create.py::contract_create_list_success PASSED                                                                                                                                                                                                                                                                                                                                                                    [ 31%]
-handler_delete.py::contract_delete_read PASSED                                                                                                                                                                                                                                                                                                                                                                            [ 37%]
-handler_delete.py::contract_delete_list PASSED                                                                                                                                                                                                                                                                                                                                                                            [ 43%]
-handler_delete.py::contract_delete_update PASSED                                                                                                                                                                                                                                                                                                                                                                          [ 50%]
-handler_delete.py::contract_delete_delete PASSED                                                                                                                                                                                                                                                                                                                                                                          [ 56%]
-handler_delete.py::contract_delete_create SKIPPED                                                                                                                                                                                                                                                                                                                                                                         [ 62%]
-handler_misc.py::contract_check_asserts_work PASSED                                                                                                                                                                                                                                                                                                                                                                       [ 68%]
-handler_read.py::contract_read_without_create PASSED                                                                                                                                                                                                                                                                                                                                                                      [ 75%]
-handler_update.py::contract_update_read_success PASSED                                                                                                                                                                                                                                                                                                                                                                    [ 81%]
-handler_update.py::contract_update_list_success PASSED                                                                                                                                                                                                                                                                                                                                                                    [ 87%]
-handler_update_invalid.py::contract_update_create_only_property SKIPPED                                                                                                                                                                                                                                                                                                                                                   [ 93%]
-handler_update_invalid.py::contract_update_non_existent_resource PASSED                                                                                                                                                                                                                                                                                                                                                   [100%]
-
-========================================================================================================================================================================================== 13 passed, 3 skipped in 1903.64s (0:31:43) ===========================================================================================================================================================================================
-root@9476f41010b6:/mnt/ebs/fs1/workspace/aws-vscode-remote-containers# 
