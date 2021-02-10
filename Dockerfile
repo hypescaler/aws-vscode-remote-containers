@@ -61,6 +61,21 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
 # CDK
 RUN npm install -g aws-cdk && npm install -g typescript
 
+# SAM CLI & AWS CloudFormation Resource Provider TypeScript Plugin
+RUN curl https://raw.githubusercontent.com/Homebrew/install/master/install.sh -o brew.sh \
+    && sed -i "s/abort \"Don't run this as root\!\"/echo \"Don't run this as root\!\"/" brew.sh \
+    && chmod +x brew.sh \
+    && ./brew.sh \
+    && rm -rf brew.sh \
+    && eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv) \
+    && echo "eval \$($(brew --prefix)/bin/brew shellenv)" >>~/.profile \
+    && brew tap aws/tap \
+    && brew install aws-sam-cli \
+    && pip3 install setuptools \
+    && pip3 install wheel \
+    && pip3 install git+https://github.com/eduardomourar/cloudformation-cli-typescript-plugin.git@v0.5.0#egg=cloudformation-cli-typescript-plugin \
+    && pip3 install cloudformation-cli==0.1.*
+
 # Cleanup
  RUN apt-get autoremove -y \
     && apt-get clean -y \

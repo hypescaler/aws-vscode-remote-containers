@@ -1,7 +1,7 @@
 {
-    "name": "hypescale-devtools-devinstance",
+    "name": "awssamples-devtools-devinstance",
     "version": "1.0.0",
-    "description": "AWS custom resource provider named Hypescale::Devtools::Devinstance.",
+    "description": "AWS custom resource provider named AWSSamples::Devtools::Devinstance.",
     "main": "dist/handlers.js",
     "files": [
         "dist"

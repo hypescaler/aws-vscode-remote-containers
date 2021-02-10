@@ -1,4 +1,4 @@
-# Hypescale::Devtools::Devinstance
+# AWSSamples::Devtools::Devinstance
 
 An example resource schema demonstrating some basic constructs and validation rules.
 
@@ -10,7 +10,7 @@ To declare this entity in your AWS CloudFormation template, use the following sy
 
 <pre>
 {
-    "Type" : "Hypescale::Devtools::Devinstance",
+    "Type" : "AWSSamples::Devtools::Devinstance",
     "Properties" : {
         "<a href="#instancetype" title="InstanceType">InstanceType</a>" : <i>String</i>,
         "<a href="#disksize" title="DiskSize">DiskSize</a>" : <i>Integer</i>,
@@ -22,7 +22,7 @@ To declare this entity in your AWS CloudFormation template, use the following sy
 ### YAML
 
 <pre>
-Type: Hypescale::Devtools::Devinstance
+Type: AWSSamples::Devtools::Devinstance
 Properties:
     <a href="#instancetype" title="InstanceType">InstanceType</a>: <i>String</i>
     <a href="#disksize" title="DiskSize">DiskSize</a>: <i>Integer</i>

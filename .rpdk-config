@@ -1,5 +1,5 @@
 {
-    "typeName": "Hypescale::Devtools::Devinstance",
+    "typeName": "AWSSamples::Devtools::Devinstance",
     "language": "typescript",
     "runtime": "nodejs12.x",
     "entrypoint": "dist/handlers.entrypoint",

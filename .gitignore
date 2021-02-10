@@ -17,8 +17,8 @@ coverage/
 # CDK
 cdk.out/
 
-# CFN
-hypescale-devtools-devinstance.zip
+# cfn cli build output
+awssamples-devtools-devinstance.zip
 
 # personal VS Code config
 .vscode/settings.json
@@ -26,11 +26,5 @@ hypescale-devtools-devinstance.zip
 # env file for local testing
 env.json
 
-# test logs
-log.txt
-
 # envrc
 .envrc
-
-# sam.log
-sam.log

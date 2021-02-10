@@ -6,7 +6,7 @@ export class ResourceModel extends BaseModel {
     ['constructor']: typeof ResourceModel;
 
     @Exclude()
-    public static readonly TYPE_NAME: string = 'Hypescale::Devtools::Devinstance';
+    public static readonly TYPE_NAME: string = 'AWSSamples::Devtools::Devinstance';
 
     @Exclude()
     protected readonly IDENTIFIER_KEY_UID: string = '/properties/UID';

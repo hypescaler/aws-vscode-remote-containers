@@ -1,6 +1,6 @@
 # Managed VS Code Remote Dev Environments
 
-The `Hypescale::Devtools::Devinstance` resource manages an EC2 instance and additional services that make a great dev environment for the [Visual Studio Code Remote - Containers](https://code.visualstudio.com/docs/remote/containers) extension. VS Code and other IDEs like Cloud9 are popularizing remote dev environments, which in general offer the following benefits:
+The `AWSSamples::Devtools::Devinstance` resource manages an EC2 instance and additional services that make a great dev environment for the [Visual Studio Code Remote - Containers](https://code.visualstudio.com/docs/remote/containers) extension. VS Code and other IDEs like Cloud9 are popularizing remote dev environments, which in general offer the following benefits:
 
 - Ability to acquire computing resources (CPU, RAM, GPU...) as needed and tear them down when idle
 - Don't be restricted by the hardware limits of the local machine
@@ -25,8 +25,10 @@ The `Devinstance` resource supports this in the following ways:
 This resource type is built with the [community Typescript plugin for CloudFormation](https://github.com/eduardomourar/cloudformation-cli-typescript-plugin):
 
 ```
-pip install https://github.com/eduardomourar/cloudformation-cli-typescript-plugin/releases/download/v0.2.1/cloudformation-cli-typescript-plugin-0.2.1.tar.gz
+pip install git+https://github.com/eduardomourar/cloudformation-cli-typescript-plugin.git@v0.5.0#egg=cloudformation-cli-typescript-plugin
 ```
+
+Note that as of this writing, the Typescript plugin does only support cfn cli version 0.1.x. You will get an error during `cfn submit` when you try to use a higher version.
 
 After checking out this repository,
 
@@ -49,9 +51,11 @@ The included Dockerfile has everything to build and submit the resource type. Pr
 ```
 git clone https://github.com/hypescaler/aws-vscode-remote-containers.git
 cd aws-vscode-remote-containers
-docker build .devcontainer/ -t dev-container
+docker build . -t dev-container
 SRC=$(pwd) && docker run --rm -it -e SRC=$SRC -v /var/run/docker.sock:/var/run/docker.sock -v $SRC:$SRC -v ~/.aws:/root/.aws dev-container /bin/bash -c "cd \$SRC && eval \$(/home/linuxbrew/.linuxbrew/bin/brew shellenv) && npm run all"
 ```
+
+If you want to use a specific AWS profile, you can add `-e AWS_PROFILE=your_profile_name` to the docker command.
 
 ## Installing and preparing VS Code
 
@@ -92,7 +96,7 @@ In this code repository, open `.vscode/settings.json` and set your SSH URI (e.g.
 
 Open this repository in VS Code, or, if you already did that, restart VS Code so that the config changes are applied.
 
-You should now be able to open your remote environment. Click the green icon in the bottom left of the IDE and choose *Remote-Containers: Reopen in Container*. VS Code will connect with the instance, build and run a container as specified by the `Dockerfile` and `devcontainer.json` in the `.devcontainer` directory. 
+You should now be able to open your remote environment. Click the green icon in the bottom left of the IDE and choose *Remote-Containers: Reopen in Container*. VS Code will connect with the instance, build and run a container as specified by the `Dockerfile` and `devcontainer.json` in the `.devcontainer` directory. You can customize this Dockerfile to your liking.
 
 Once done, you will be greeted with an empty workspace - that's expected, there is no way to sync your local files with a remote environment. You'd now check out the source code for whatever project you are working on. 
 
@@ -102,13 +106,13 @@ Your workspace and home directory are backed by the mounted EBS volume, so as lo
 
 ## Hibernate your instance
 
-You can hibernate your instance to save costs, but currently only manually via the AWS Console or other well-known means. An automation to hibernate after an idle time couldn't be implemented yet.
+You can hibernate your instance to save costs via the AWS Console or other well-known means.
 
 ## Reconfiguring your `Devinstance` resource
 
 You can
 
-- change the instance type, e.g. from `m4.xlarge` to `m4.2xlarge` (others should work, too, but I only tested those two) 
+- change the instance type, e.g. from `m4.xlarge` to `m4.2xlarge` (others should work, too) 
 - increase the EBS volume size
 - change your key pair name
 
@@ -140,7 +144,7 @@ It should be possible to derive a more generalized handler framework that could 
 
 ## Passing `cfn test`
 
-The resource passes the test, as shown in `cfn-test-output.txt` ... but you need to pass a set of AWS credentials with full permissions to make it work. The tester is injecting credentials that aren't authorized to make IAM calls, which is required for the CloudFormation template to be deployed.
+The resource passes the test (with cfn 0.2.3), but you need to pass a set of AWS credentials with full permissions to make it work. The tester is injecting credentials that aren't authorized to make IAM calls, which is required for the CloudFormation template to be deployed.
 
 1. Make a copy of `env.template.json` as `env.json` and add an access key ID and secret access key (with full permissions) to it. 
 2. Start the funtion locally via `sam local start-lambda -n env.json` 
@@ -168,13 +172,39 @@ cdk --app dist/devinstance-app.js diff DevinstanceStack
 cdk --app dist/devinstance-app.js deploy DevinstanceStack
 ```
 
-## Further improvements
 
-(might implement if I find the time)
+# cfn test
+Use specific handler permissions instead of using wildcards: *
+Use specific handler permissions instead of using wildcards: *
+Use specific handler permissions instead of using wildcards: *
+Use specific handler permissions instead of using wildcards: *
+Use specific handler permissions instead of using wildcards: *
+Resource schema is valid.
+====================================================================================================================================================================================================== test session starts ======================================================================================================================================================================================================
+platform linux -- Python 3.8.6, pytest-6.1.1, py-1.9.0, pluggy-0.13.1 -- /home/linuxbrew/.linuxbrew/opt/python@3.8/bin/python3.8
+cachedir: .pytest_cache
+hypothesis profile 'default' -> database=DirectoryBasedExampleDatabase('/mnt/ebs/fs1/workspace/aws-vscode-remote-containers/.hypothesis/examples')
+Test order randomisation NOT enabled. Enable with --random-order or --random-order-bucket=<bucket_type>
+rootdir: /mnt/ebs/fs1/workspace/aws-vscode-remote-containers, configfile: ../../../../../tmp/pytest_9ato2rh2.ini
+plugins: hypothesis-5.37.1, localserver-0.5.0, random-order-1.0.4
+collected 16 items                                                                                                                                                                                                                                                                                                                                                                                                              
 
-- [ ] make a PR for a CDK bug discovered regarding using CfnParamter with EBS disk sizes (had to hack my own version of `@aws-cdk/ec2` to make it work)
-- [ ] reduce permissions of resource handler and EC2 instances (currently, these can attach / detach any volume in your account; this should be limited to their own volume)
-- [ ] auto hibernate when no open SSH sessions plus HTTP endpoint to wake up instances
-- [ ] set backup schedule for EBS volume
-- [ ] downloadable config for VS Code
-- [ ] clean up the code :)
+handler_create.py::contract_create_delete PASSED                                                                                                                                                                                                                                                                                                                                                                          [  6%]
+handler_create.py::contract_invalid_create PASSED                                                                                                                                                                                                                                                                                                                                                                         [ 12%]
+handler_create.py::contract_create_duplicate SKIPPED                                                                                                                                                                                                                                                                                                                                                                      [ 18%]
+handler_create.py::contract_create_read_success PASSED                                                                                                                                                                                                                                                                                                                                                                    [ 25%]
+handler_create.py::contract_create_list_success PASSED                                                                                                                                                                                                                                                                                                                                                                    [ 31%]
+handler_delete.py::contract_delete_read PASSED                                                                                                                                                                                                                                                                                                                                                                            [ 37%]
+handler_delete.py::contract_delete_list PASSED                                                                                                                                                                                                                                                                                                                                                                            [ 43%]
+handler_delete.py::contract_delete_update PASSED                                                                                                                                                                                                                                                                                                                                                                          [ 50%]
+handler_delete.py::contract_delete_delete PASSED                                                                                                                                                                                                                                                                                                                                                                          [ 56%]
+handler_delete.py::contract_delete_create SKIPPED                                                                                                                                                                                                                                                                                                                                                                         [ 62%]
+handler_misc.py::contract_check_asserts_work PASSED                                                                                                                                                                                                                                                                                                                                                                       [ 68%]
+handler_read.py::contract_read_without_create PASSED                                                                                                                                                                                                                                                                                                                                                                      [ 75%]
+handler_update.py::contract_update_read_success PASSED                                                                                                                                                                                                                                                                                                                                                                    [ 81%]
+handler_update.py::contract_update_list_success PASSED                                                                                                                                                                                                                                                                                                                                                                    [ 87%]
+handler_update_invalid.py::contract_update_create_only_property SKIPPED                                                                                                                                                                                                                                                                                                                                                   [ 93%]
+handler_update_invalid.py::contract_update_non_existent_resource PASSED                                                                                                                                                                                                                                                                                                                                                   [100%]
+
+========================================================================================================================================================================================== 13 passed, 3 skipped in 1903.64s (0:31:43) ===========================================================================================================================================================================================
+root@9476f41010b6:/mnt/ebs/fs1/workspace/aws-vscode-remote-containers# 

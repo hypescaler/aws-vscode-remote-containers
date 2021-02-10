@@ -1,5 +1,5 @@
 {
-    "typeName": "Hypescale::Devtools::Devinstance",
+    "typeName": "AWSSamples::Devtools::Devinstance",
     "description": "An example resource schema demonstrating some basic constructs and validation rules.",
     "sourceUrl": "https://github.com/aws-cloudformation/aws-cloudformation-rpdk.git",
     "properties": {
